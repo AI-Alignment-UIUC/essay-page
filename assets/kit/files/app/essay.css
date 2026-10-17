@@ -1,0 +1,378 @@
+/* The essay page, lit like a film. Every class here is .lt-*, and every value is a token from
+   essay-tokens.css (colour, type, layout, rhythm and motion all come from there).
+   Night: the page opens on a title card (.lt-hero) over a rising globe, drawn in three layers that
+   move apart on the way down (or, with no pictures, a night sky drawn in CSS), then the opening
+   quote alone on the dark (.lt-open), which stays put while the essay slides up over it.
+   Paper: the essay is a sheet (.lt-sheet), one serif column in the middle of the window with
+   nothing beside it. What the essay itself holds gets the room: section titles sit centred like
+   title cards, quotes and photographs break out past the column (.lt-pull, .lt-spread, .lt-fig-wide,
+   .lt-fig-bleed), a portrait can hang in the margin (.lt-fig-side) and the recommendations sit two
+   across.
+   Night again: a stretch in a dark mood is a band of cream on black as wide as the window
+   (.lt-night). There are two kinds, the mid-essay band (.lt-night-band) and the ending
+   (.lt-night-end), where the last picture runs edge to edge into its own black sky and the sources
+   roll as credits (.lt-credits).
+   Type and photos are clean: no misregistered ink, no halftone, no grain, every photo shown whole.
+   Motion (lib/essay/motion.ts): the globe rises as the page loads and again with the scroll, words
+   ink in as the reader reaches a block, headings rise from their baseline, quotes light word by
+   word with the scroll, photos open from the top, and the paper takes a light tint from the passage
+   in view. The dial is --lt-loud, set on .lt-root from ?loud=: 1 is all of it, 0 holds everything
+   still. Reduced motion keeps a short fade and nothing else.
+   Dark mode: EssayTheme writes data-theme="dark" on .lt-root, which swaps the paper's colours. */
+
+:where(.lt-root, .lt-root *, .lt-root *::before, .lt-root *::after) { box-sizing: border-box; }
+.lt-root {
+  position: relative; overflow-x: clip; color: var(--lt-ink); background-color: var(--lt-night);
+  font-variant-numeric: proportional-nums; /* Newsreader's figures are tabular unless asked */
+  -webkit-font-smoothing: antialiased;
+}
+.lt-root :where(a, button, [tabindex]):focus-visible { outline: 3px solid var(--lt-focus); outline-offset: 3px; border-radius: 2px; }
+/* wherever the lights are out, the same names carry the night's colours */
+.lt-hero, .lt-open, .lt-night, .lt-credits {
+  --lt-ink: var(--lt-cream); --lt-soft: var(--lt-night-soft); --lt-line: color-mix(in srgb, var(--lt-cream) 22%, transparent);
+  --lt-accent: var(--lt-glow); --lt-accent-text: var(--lt-amber); --lt-paper: var(--lt-night); --lt-focus: var(--lt-glow);
+  color: var(--lt-ink); background-color: var(--lt-night);
+}
+:where(.lt-root) :where(figure, blockquote) { margin: 0; }
+
+/* ------------------------------------------------------------------ the masthead and the progress line
+   Mark the site's sticky header with data-essay-masthead. Over the night at the top it has no
+   ground of its own (motion holds html.lt-top while it is there). On the way down it steps aside
+   so the essay has the whole window, and a line along the top edge shows how far in the reader is.
+   It comes back on the way up. */
+html.lt-top [data-essay-masthead] { background-color: transparent; border-bottom-color: transparent; }
+html.lt-tuck [data-essay-masthead] { translate: 0 -104%; }
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.lt-root) [data-essay-masthead] {
+    transition: translate 460ms var(--lt-ease-emphasized), border-bottom-color var(--lt-dur-control) var(--lt-ease-smooth), background-color var(--lt-dur-control) var(--lt-ease-smooth);
+  }
+}
+.lt-progress {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 41; height: 3px; pointer-events: none;
+  background: var(--lt-accent); transform: scaleX(0); transform-origin: 0 50%; opacity: 0; transition: opacity 300ms var(--lt-ease-standard);
+}
+html.lt-tuck .lt-progress { opacity: 1; }
+@supports (animation-timeline: scroll()) {
+  .lt-progress { animation: lt-progress linear both; animation-timeline: scroll(root block); }
+}
+@keyframes lt-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ------------------------------------------------------------------ the title card
+   The scene is three pictures of one frame (sky, globe, land), each covering the card from its
+   bottom edge, so the ridge sits on the fold at any window shape and the globe can move behind it. */
+.lt-hero {
+  position: relative; isolation: isolate; overflow: clip; display: flex; flex-direction: column; min-height: max(100svh, 600px);
+  padding: calc(var(--lt-headh) + clamp(8px, 4.5svh, 56px)) var(--lt-pad) 0; text-align: center;
+}
+.lt-scene, .lt-orb { position: absolute; inset: 0; }
+.lt-scene { z-index: -1; overflow: hidden; }
+.lt-scene img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; }
+.lt-scene::after { content: ""; position: absolute; inset: 0; background: radial-gradient(125% 95% at 50% 42%, transparent 52%, color-mix(in srgb, var(--lt-black) 46%, transparent) 100%); }
+/* With no pictures the card draws its own night: a deep sky that warms toward the horizon and one
+   soft orb sitting low in the frame, half below the fold. It rises and lifts like the pictures do. */
+.lt-scene-css .lt-sky { position: absolute; inset: 0; background: linear-gradient(to bottom, var(--lt-night) 0%, color-mix(in srgb, var(--lt-horizon) 45%, var(--lt-night)) 58%, var(--lt-horizon) 100%); }
+.lt-scene-css .lt-orb { display: grid; grid-template-columns: 100%; place-items: end center; }
+.lt-orb-glow {
+  --lt-orb-size: min(135vw, 1500px);
+  width: var(--lt-orb-size); aspect-ratio: 1; margin-bottom: calc(var(--lt-orb-size) * -.4); border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--lt-amber) 92%, transparent) 0, color-mix(in srgb, var(--lt-amber) 46%, transparent) 9%, color-mix(in srgb, var(--lt-glow) 24%, transparent) 22%, color-mix(in srgb, var(--lt-horizon) 40%, transparent) 40%, transparent 66%);
+}
+.lt-kicker { margin: 0; font-family: var(--lt-mono); font-size: clamp(12px, .95vw, 14px); font-weight: 500; line-height: 1.4; letter-spacing: .2em; text-transform: uppercase; color: var(--lt-accent-text); }
+.lt-kicker::after { content: ""; display: block; width: 44px; height: 1.5px; margin: clamp(14px, 1.5vw, 20px) auto 0; background: currentColor; transform-origin: 50% 50%; }
+.lt-draft { display: inline-block; margin-left: 14px; padding: 2px 8px; border: 1px dashed currentColor; color: var(--lt-soft); }
+.lt-theme { display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px 6px 10px; font-family: var(--lt-mono); font-size: 12px; font-weight: 500; line-height: 1.3; letter-spacing: .12em; text-transform: uppercase; color: var(--lt-ink); background: none; border: 1px solid var(--lt-line); border-radius: 999px; cursor: pointer; transition: border-color var(--lt-dur-state) var(--lt-ease-standard); }
+.lt-theme:hover { border-color: var(--lt-ink); }
+.lt-theme-dot { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid currentColor; background: linear-gradient(90deg, currentColor 50%, transparent 50%); transition: rotate 600ms var(--lt-ease-spring); }
+.lt-root[data-theme="dark"] .lt-theme-dot { rotate: 180deg; }
+/* the light switch: under the name on a narrow window, in the corner of the card on a wide one */
+.lt-hero-in { position: relative; }
+.lt-theme { margin-top: clamp(16px, 2.6svh, 26px); }
+@media (min-width: 900px) { .lt-theme { position: absolute; top: -6px; right: 0; margin: 0; } }
+/* one line across the sky on a wide window, two larger ones on a tall one, the small word leaning */
+.lt-title { margin: clamp(16px, 3svh, 36px) 0 0; font-family: var(--lt-serif); font-weight: 400; font-size: clamp(46px, min(max(7.5vw, min(13vw, 9svh)), 17svh), 164px); line-height: .98; letter-spacing: -.03em; color: var(--lt-ink); text-wrap: balance; }
+.lt-title em { font-style: italic; font-weight: 300; letter-spacing: -.015em; }
+.lt-by { margin: clamp(12px, 2.2svh, 26px) 0 0; font-family: var(--lt-serif); font-style: italic; font-size: clamp(19px, 1.6vw, 26px); line-height: 1.3; color: var(--lt-accent-text); }
+/* a hairline at the fold with a light running down it: there is more below */
+.lt-cue { position: absolute; left: 50%; bottom: clamp(12px, 3svh, 30px); width: 1px; height: clamp(34px, 6.5svh, 60px); overflow: hidden; background: color-mix(in srgb, var(--lt-cream) 26%, transparent); transition: opacity 400ms var(--lt-ease-standard); }
+.lt-cue::after { content: ""; position: absolute; inset: 0 0 auto; height: 42%; background: var(--lt-amber); translate: 0 -100%; }
+html.lt-scrolled .lt-cue { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .lt-scene { animation: lt-fade 900ms var(--lt-ease-standard) both; }
+  .lt-orb img, .lt-orb-glow { animation: lt-dawn 3600ms cubic-bezier(.16, 1, .3, 1) 150ms both; }
+  .lt-kicker { animation: lt-track 1100ms var(--lt-ease-emphasized) both; }
+  .lt-kicker::after { animation: lt-draw 900ms var(--lt-ease-emphasized) 500ms backwards; }
+  .lt-title .lt-hw > span { animation: lt-up 1200ms var(--lt-ease-emphasized) calc(260ms + var(--i) * 110ms) backwards; }
+  .lt-by { animation: lt-rise 900ms var(--lt-ease-emphasized) 900ms backwards; }
+  .lt-cue { animation: lt-fade 800ms var(--lt-ease-standard) 2200ms backwards; }
+  .lt-cue::after { animation: lt-cue 2400ms cubic-bezier(.6, 0, .3, 1) 2600ms infinite; }
+  @supports (animation-timeline: scroll()) {
+    /* with the scroll the globe goes on rising behind the ridge, and the title leaves ahead of the card */
+    .lt-orb { animation: lt-lift linear both; animation-timeline: scroll(root block); animation-range: 0px 100vh; }
+    .lt-hero-in { animation: lt-away linear both; animation-timeline: scroll(root block); animation-range: 0px 60vh; }
+  }
+}
+@keyframes lt-fade { from { opacity: 0; } }
+@keyframes lt-dawn { from { translate: 0 calc(26% * var(--lt-loud)); } }
+@keyframes lt-lift { to { translate: 0 calc(-9% * var(--lt-loud)); } }
+@keyframes lt-away { to { translate: 0 calc(-9vh * var(--lt-loud)); opacity: calc(1 - var(--lt-loud)); } }
+@keyframes lt-track { from { letter-spacing: .54em; opacity: 0; } }
+@keyframes lt-draw { from { scale: 0 1; } }
+@keyframes lt-rise { from { opacity: 0; translate: 0 18px; } }
+@keyframes lt-up { from { translate: 0 140%; } }
+@keyframes lt-cue { from { translate: 0 -100%; } 62%, to { translate: 0 260%; } }
+
+/* ------------------------------------------------------------------ the opening quote, alone on the dark
+   It fills one window and stays where it is while the sheet comes up over it. Motion writes
+   --lt-cover, how much of it the sheet has covered, and it falls back a little as it goes under. */
+.lt-open { position: sticky; top: 0; z-index: 0; display: grid; place-items: center; min-height: 100svh; padding: clamp(64px, 11svh, 120px) var(--lt-pad); text-align: center; }
+.lt-root[data-covered] .lt-open { visibility: hidden; }
+.lt-epi { max-width: 1120px; font-family: var(--lt-serif); }
+.lt-epi blockquote p { margin: 0; font-size: clamp(21px, min(3.05vw, 4.6svh), 45px); line-height: 1.3; letter-spacing: -.014em; text-wrap: balance; }
+.lt-odds { font-style: italic; color: var(--lt-amber); }
+.lt-epi figcaption, .lt-pull figcaption, .lt-spread figcaption { margin-top: clamp(16px, 1.6vw, 24px); font-family: var(--lt-mono); font-size: clamp(var(--lt-caption), 1vw, 14.5px); font-weight: 500; line-height: 1.6; letter-spacing: .1em; text-transform: uppercase; color: var(--lt-soft); }
+.lt-epi figcaption { margin-top: clamp(22px, 3.4svh, 40px); }
+.lt-epi figcaption em, .lt-pull figcaption em, .lt-spread figcaption em { font-style: normal; color: var(--lt-accent-text); }
+
+/* ------------------------------------------------------------------ the sheet, the column and what breaks out of it
+   .lt-text is as wide as the page. Each thing in a section is centred in it at the column's width
+   unless it is one of the wide ones. cqi is a hundredth of the page's width without the scrollbar. */
+.lt-sheet { position: relative; z-index: 1; background-color: var(--lt-paper); transition: background-color 1400ms var(--lt-ease-standard); }
+.lt-snap .lt-sheet { transition: none; }
+.lt-sheet::before { content: ""; position: absolute; inset: auto 0 100%; height: clamp(56px, 11vh, 120px); pointer-events: none; background: linear-gradient(to top, color-mix(in srgb, var(--lt-black) 50%, transparent), transparent); }
+/* the paper takes the tint of the mood in view. Essay.tsx writes --lt-tint for each mood that has
+   one (from moods.tints in the config); a mood without a tint leaves the paper plain. */
+.lt-root[data-mood] .lt-sheet { background-color: color-mix(in srgb, var(--lt-tint, var(--lt-paper)) calc(var(--lt-loud) * 100%), var(--lt-paper)); }
+
+.lt-text { container-type: inline-size; font-family: var(--lt-serif); font-size: var(--lt-body); line-height: 1.62; color: var(--lt-ink); }
+:is(.lt-sec, .lt-night) > * { width: min(var(--lt-col), 100cqi - 2 * var(--lt-pad)); margin-inline: auto; }
+:is(.lt-sec, .lt-night) > .lt-pull { width: min(960px, 100cqi - 2 * var(--lt-pad)); }
+:is(.lt-sec, .lt-night) > :is(.lt-spread, .lt-steps) { width: min(var(--lt-wide), 100cqi - 2 * var(--lt-pad)); }
+:is(.lt-sec, .lt-night) > .lt-fig-wide { width: min(var(--lt-wide), 100cqi - 2 * var(--lt-pad), var(--lt-tall) * var(--ar)); }
+:is(.lt-sec, .lt-night) > .lt-fig-bleed, .lt-sec > .lt-night { width: 100cqi; }
+.lt-sec > .lt-head { width: min(1060px, 100cqi - 2 * var(--lt-pad)); }
+.lt-sec { scroll-margin-top: calc(var(--lt-headh) + 24px); }
+.lt-sec + .lt-sec { margin-top: var(--lt-s3); }
+.lt-sec + .lt-sec.lt-bare { margin-top: var(--lt-s4); } /* the close: its end mark break stands alone */
+.lt-text > .lt-sec:first-child { padding-top: var(--lt-s3); }
+
+.lt-p { margin-block: var(--lt-s1) 0; text-wrap: pretty; }
+.lt-text a { color: inherit; text-decoration: underline; text-decoration-color: var(--lt-accent); text-decoration-thickness: 1.5px; text-underline-offset: 3px; transition: color var(--lt-dur-state) var(--lt-ease-standard); }
+.lt-text a:hover { color: var(--lt-accent-text); }
+.lt-list { margin-block: var(--lt-s1) 0; padding-left: 1.2em; list-style: square; }
+.lt-list li + li { margin-top: .5em; }
+.lt-list li::marker { color: var(--lt-accent); }
+:is(.lt-sec, .lt-night) > :first-child { margin-top: 0; }
+.lt-night > :last-child { margin-bottom: 0; }
+
+/* a section opens like a title card: its number between two rules that draw out from it, then the title */
+.lt-head { text-align: center; }
+.lt-n { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: clamp(16px, 2vw, 28px); font-family: var(--lt-mono); font-size: var(--lt-caption); font-weight: 500; line-height: 1; letter-spacing: .2em; text-indent: .2em; color: var(--lt-accent-text); }
+.lt-n::before, .lt-n::after { content: ""; width: clamp(36px, 8cqi, 110px); height: 1px; background: var(--lt-line); }
+.lt-n::before { transform-origin: 100% 50%; }
+.lt-n::after { transform-origin: 0 50%; }
+.lt-h { margin: 0; font-family: var(--lt-serif); font-weight: 400; font-size: clamp(34px, 5.1cqi, 80px); line-height: 1.02; letter-spacing: -.028em; color: var(--lt-ink); text-wrap: balance; }
+/* from a heading to whatever it opens on: one beat. The close has its own, longer one below the end mark */
+.lt-sec > .lt-head + :not(.lt-row), .lt-sec > .lt-head + .lt-row > .lt-p:first-of-type { margin-top: var(--lt-s2); }
+.lt-sec.lt-bare > .lt-head.lt-break + * { margin-top: var(--lt-s4); }
+.lt-break .lt-n { margin-bottom: 0; gap: 22px; }
+.lt-break .lt-n::before, .lt-break .lt-n::after { width: clamp(60px, 14cqi, 200px); }
+/* a heading's word, behind its own baseline */
+.lt-hw { display: inline-block; overflow: hidden; vertical-align: bottom; padding: .1em .04em .22em; margin: -.1em -.04em -.22em; }
+.lt-hw > span { display: inline-block; }
+
+/* the greeting, the drop cap and the opening words in capitals */
+.lt-hello { margin-block: 0; font-style: italic; font-size: 1.36em; line-height: 1.25; color: var(--lt-accent-text); }
+.lt-drop::first-letter { float: left; margin: .07em .07em 0 0; font-weight: 400; font-size: 3.55em; line-height: .8; color: var(--lt-ink); }
+.lt-lead { font-size: .8em; font-weight: 500; letter-spacing: .09em; text-transform: uppercase; }
+
+/* a number the essay leans on, under a marker stroke */
+.lt-key { background: linear-gradient(color-mix(in srgb, var(--lt-accent) 42%, transparent) 0 0) no-repeat 0 92% / 100% .34em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+/* ------------------------------------------------------------------ quotes
+   Without a face: the quote runs large and wide under its mark. With a face: a spread, the portrait
+   on one side and the words on the other, the sides alternating down the page. */
+.lt-pull, .lt-spread { margin-block: var(--lt-s2); }
+.lt-pull::before, .lt-spread-say::before { content: "\201C"; display: block; height: .46em; font-family: var(--lt-serif); font-weight: 600; font-size: clamp(84px, 8cqi, 128px); line-height: 1; color: var(--lt-accent); }
+.lt-spread-say::before { font-size: clamp(64px, 5.4cqi, 92px); }
+.lt-pull blockquote p { margin: 0; font-size: clamp(1.16em, 2.5cqi, 1.5em); line-height: 1.36; letter-spacing: -.012em; text-wrap: pretty; }
+.lt-beat { display: block; margin-top: .62em; }
+.lt-spread { display: grid; grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); column-gap: clamp(28px, 5cqi, 76px); align-items: center; }
+.lt-spread[data-side="r"] { grid-template-columns: minmax(0, 1.22fr) minmax(0, .78fr); }
+.lt-spread[data-side="r"] .lt-face { order: 2; }
+.lt-spread[data-land] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } /* a landscape picture gets half the width */
+.lt-spread blockquote p { margin: 0; font-size: clamp(1.08em, 2.15cqi, 1.4em); line-height: 1.38; letter-spacing: -.01em; text-wrap: pretty; }
+.lt-pull blockquote p + p, .lt-spread blockquote p + p { margin-top: .7em; }
+.lt-spread .lt-orig { font-size: .78em; line-height: 1.5; color: var(--lt-soft); }
+.lt-photo { display: block; opacity: .8; }
+/* one line on what the quote means for us, between the attribution and the photo credit, in the reading face */
+.lt-note { display: block; margin: .45em 0 .55em; font-family: var(--lt-serif); font-size: clamp(16px, 1.25vw, 18px); font-style: italic; font-weight: 400; line-height: 1.45; letter-spacing: 0; text-transform: none; color: var(--lt-ink); }
+@container (max-width: 860px) {
+  .lt-spread, .lt-spread[data-side="r"] { display: block; }
+  .lt-face { width: min(62%, 300px); margin-bottom: 26px; }
+  .lt-spread[data-land] .lt-face { width: 100%; }
+}
+
+/* ------------------------------------------------------------------ photographs, each one whole */
+.lt-shot { display: block; overflow: hidden; }
+.lt-shot img { display: block; width: 100%; height: auto; }
+.lt-fig { margin-block: var(--lt-s2); }
+.lt-fig figcaption { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 12px; font-family: var(--lt-mono); font-size: clamp(var(--lt-caption), .95vw, 14px); font-weight: 500; line-height: 1.5; letter-spacing: .1em; text-transform: uppercase; color: var(--lt-ink); }
+/* a strip: pictures side by side at one height (each grows in proportion to its shape), a label under each */
+:is(.lt-sec, .lt-night) > .lt-strip { width: min(var(--lt-wide), 100cqi - 2 * var(--lt-pad)); }
+.lt-strip { --lt-strip-h: 150px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px 14px; margin-block: var(--lt-s2); }
+.lt-strip-item { flex: var(--ar) 1 calc(var(--ar) * var(--lt-strip-h)); min-width: 0; }
+.lt-strip-item .lt-shot { border-radius: 3px; }
+.lt-strip-name { display: block; margin-top: 10px; text-align: center; font-family: var(--lt-mono); font-size: var(--lt-caption); font-weight: 500; line-height: 1.5; letter-spacing: .1em; text-transform: uppercase; color: var(--lt-ink); }
+@container (max-width: 700px) { .lt-strip { --lt-strip-h: 90px; } }
+/* a picture's label sits centred under it */
+.lt-fig figcaption { justify-content: center; text-align: center; }
+.lt-fig-bleed figcaption { width: min(var(--lt-wide), 100cqi - 2 * var(--lt-pad)); margin-inline: auto; }
+.lt-fig-wide .lt-shot, .lt-fig-side .lt-shot, .lt-face { border-radius: 3px; }
+/* in the margin beside its paragraph where there is a margin, inside the column where there is not */
+.lt-row { display: flow-root; }
+.lt-row > .lt-p:first-of-type { margin-top: var(--lt-s1); }
+.lt-fig-side { float: right; width: min(42%, 230px); margin: .45em 0 .8em 1.5em; }
+.lt-fig-side figcaption { display: block; margin-top: 10px; }
+/* on a phone the portrait and its caption sit side by side above the paragraph, so no line is squeezed */
+@container (max-width: 560px) {
+  .lt-fig-side { float: none; display: grid; grid-template-columns: 38% 1fr; gap: 16px; align-items: end; width: auto; margin: var(--lt-s1) 0 0; }
+  .lt-fig-side figcaption { margin: 0; }
+  .lt-fig figcaption { display: block; }
+}
+@container (min-width: 1380px) {
+  .lt-fig-side { --lt-hang: clamp(210px, 17cqi, 290px); width: var(--lt-hang); margin: .45em calc(-1 * var(--lt-hang) - clamp(36px, 3.4cqi, 60px)) 1em 0; }
+}
+
+/* ------------------------------------------------------------------ the recommendations, two across */
+.lt-steps { counter-reset: lt; display: grid; gap: var(--lt-s2) clamp(36px, 6cqi, 84px); margin-block: var(--lt-s2); padding: 0; list-style: none; }
+@container (min-width: 900px) { .lt-steps { grid-template-columns: 1fr 1fr; } }
+.lt-steps li { counter-increment: lt; padding-top: 18px; border-top: 1px solid var(--lt-line); font-size: .93em; line-height: 1.58; text-wrap: pretty; }
+.lt-steps li::before { content: counter(lt); display: block; margin-bottom: 10px; font-weight: 400; font-style: italic; font-size: 2.5em; line-height: 1; color: var(--lt-accent-text); }
+.lt-steps strong { font-weight: 600; }
+
+.lt-todo { margin-block: var(--lt-s2) 0; padding: 20px 18px; text-align: center; font-family: var(--lt-mono); font-size: 12px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--lt-soft); border: 1px dashed var(--lt-line); }
+
+/* ------------------------------------------------------------------ the lights go out
+   A band of the night across the whole window. In the mid-essay band the quote runs as large as the
+   opening one. The ending is black, not night, so the last picture has no edge: its sky is the page. */
+.lt-night { margin-block: var(--lt-s3); padding-block: clamp(96px, 18vh, 210px); }
+.lt-night > .lt-pull { width: min(1100px, 100cqi - 2 * var(--lt-pad)); }
+.lt-night .lt-pull blockquote p { font-size: clamp(1.3em, 3.25cqi, 2.4em); line-height: 1.24; letter-spacing: -.02em; }
+/* what answers the quote keeps the quote's left edge and the column's measure */
+.lt-night-band > .lt-p { box-sizing: border-box; width: min(1100px, 100cqi - 2 * var(--lt-pad)); padding-right: max(0px, min(1100px, 100cqi - 2 * var(--lt-pad)) - var(--lt-col)); font-size: 1.1em; margin-top: calc(var(--lt-s1) / 1.1); }
+.lt-night-end, .lt-credits { --lt-night: var(--lt-black); }
+.lt-night-end { margin-bottom: 0; padding-block: clamp(40px, 9vh, 110px) clamp(56px, 9vh, 110px); }
+.lt-night > .lt-fig-bleed { width: min(100cqi, 200svh); }
+.lt-night .lt-fig-bleed figcaption { margin-top: 16px; }
+
+/* the end mark, then the sources as the credits: who on the left, the work on the right */
+.lt-credits { padding: 0 var(--lt-pad) clamp(96px, 16vh, 190px); text-align: center; }
+.lt-end { display: flex; justify-content: center; margin: 0 auto clamp(64px, 11vh, 130px); color: var(--lt-accent); }
+.lt-sec:not(:has(> .lt-night:last-child)) + .lt-credits { margin-top: var(--lt-s3); padding-top: clamp(64px, 11vh, 130px); }
+.lt-credits-h { margin: 0 0 clamp(26px, 4vh, 46px); font-family: var(--lt-mono); font-size: var(--lt-caption); font-weight: 500; line-height: 1.5; letter-spacing: .32em; text-indent: .32em; text-transform: uppercase; color: var(--lt-accent-text); }
+.lt-credits section + section { margin-top: var(--lt-s3); }
+.lt-roll { display: grid; gap: 13px; width: min(1000px, 100%); margin: 0 auto; padding: 0; list-style: none; }
+.lt-roll li { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); column-gap: clamp(18px, 2.6cqi, 34px); align-items: baseline; }
+.lt-who { text-align: right; font-family: var(--lt-mono); font-size: var(--lt-caption); font-weight: 500; line-height: 1.6; letter-spacing: .12em; text-transform: uppercase; color: var(--lt-soft); }
+.lt-work { grid-column: 2; text-align: left; font-size: clamp(16px, .82em, 19px); line-height: 1.45; text-wrap: pretty; }
+@container (max-width: 700px) {
+  .lt-roll { gap: 20px; }
+  .lt-roll li { display: block; }
+  .lt-who, .lt-work { display: block; text-align: center; }
+}
+
+/* ------------------------------------------------------------------ the section dots, at the left edge */
+.lt-dots { display: none; }
+@media (min-width: 1180px) {
+  .lt-dots { display: block; position: fixed; left: clamp(10px, 1.3vw, 26px); top: 50%; z-index: 5; translate: 0 -50%; opacity: 0; visibility: hidden; transition: opacity 400ms var(--lt-ease-standard), visibility 0s 400ms; }
+  .lt-root[data-reading] .lt-dots { opacity: 1; visibility: visible; transition-delay: 0s; }
+  .lt-dots ol { display: grid; margin: 0; padding: 0; list-style: none; }
+  .lt-dots a { display: flex; align-items: center; gap: 12px; padding: 8px; text-decoration: none; }
+  .lt-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: color-mix(in srgb, var(--lt-ink) 32%, var(--lt-paper)); transition: background-color var(--lt-dur-state) var(--lt-ease-standard), scale 500ms var(--lt-ease-spring); }
+  .lt-dots a[data-on] .lt-dot { background: var(--lt-accent); scale: 1.6; }
+  .lt-dot-name { padding: 4px 9px; font-family: var(--lt-mono); font-size: 11.5px; font-weight: 500; line-height: 1.4; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; color: var(--lt-ink); background: var(--lt-paper); border: 1px solid var(--lt-line); border-radius: 3px; opacity: 0; translate: -6px 0; pointer-events: none; transition: opacity var(--lt-dur-state) var(--lt-ease-standard), translate var(--lt-dur-state) var(--lt-ease-standard); }
+  .lt-dots a:hover .lt-dot-name, .lt-dots a:focus-visible .lt-dot-name { opacity: 1; translate: none; }
+}
+
+/* ------------------------------------------------------------------ motion
+   .lt-js is on .lt-root before first paint; .lt-rv marks a block that arrives and .lt-in that it has. */
+@media (prefers-reduced-motion: no-preference) {
+  /* ink: the block settles upward while its words come up one after another (motion.ts times them) */
+  .lt-js .lt-rv { translate: 0 calc(16px * var(--lt-loud)); transition: translate 1000ms var(--lt-ease-emphasized); }
+  .lt-js .lt-rv.lt-in { translate: none; }
+  .lt-js .lt-ink:not(.lt-in) .lt-w { opacity: 0; }
+  .lt-js .lt-rv .lt-key { background-size: 0% .34em; transition: background-size 900ms var(--lt-ease-emphasized) 650ms; }
+  .lt-js .lt-rv.lt-in .lt-key { background-size: 100% .34em; }
+  /* headings: each word rises from behind its baseline, and the rules draw out from the number */
+  .lt-js .lt-head .lt-hw > span { translate: 0 calc(140% * var(--lt-loud)); transition: translate 1050ms var(--lt-ease-emphasized) calc(140ms + var(--i) * 60ms); }
+  .lt-js .lt-head.lt-in .lt-hw > span { translate: none; }
+  .lt-js .lt-head .lt-n { opacity: 0; transition: opacity 600ms var(--lt-ease-standard); }
+  .lt-js .lt-head.lt-in .lt-n { opacity: 1; }
+  .lt-js .lt-head .lt-n::before, .lt-js .lt-head .lt-n::after { scale: 0 1; transition: scale 1300ms var(--lt-ease-emphasized) 100ms; }
+  .lt-js .lt-head.lt-in .lt-n::before, .lt-js .lt-head.lt-in .lt-n::after { scale: 1 1; }
+  /* speak: a quote waits dimmed and lights word by word with the scroll */
+  .lt-speaks .lt-say .lt-w { opacity: calc(1 - .76 * var(--lt-loud)); transition: opacity 420ms var(--lt-ease-standard); }
+  .lt-speaks .lt-say .lt-w.on { opacity: 1; }
+  .lt-js .lt-pull.lt-rv::before, .lt-js .lt-spread.lt-rv .lt-spread-say::before { opacity: 0; scale: .6; rotate: -12deg; transform-origin: 0 100%; transition: opacity 500ms var(--lt-ease-standard), scale 900ms var(--lt-ease-spring), rotate 900ms var(--lt-ease-spring); }
+  .lt-js .lt-pull.lt-in::before, .lt-js .lt-spread.lt-in .lt-spread-say::before { opacity: 1; scale: 1; rotate: none; }
+  .lt-js .lt-epi.lt-rv figcaption, .lt-js .lt-pull.lt-rv figcaption, .lt-js .lt-spread.lt-rv figcaption, .lt-js .lt-fig.lt-rv figcaption { opacity: 0; transition: opacity 700ms var(--lt-ease-standard) 600ms; }
+  .lt-js .lt-epi.lt-in figcaption, .lt-js .lt-pull.lt-in figcaption, .lt-js .lt-spread.lt-in figcaption, .lt-js .lt-fig.lt-in figcaption { opacity: 1; }
+  /* the opening quote falls back as the sheet covers it */
+  .lt-epi { opacity: calc(1 - var(--lt-cover, 0) * .85 * var(--lt-loud)); scale: calc(1 - var(--lt-cover, 0) * .06 * var(--lt-loud)); }
+  /* photos open from the top and settle; nothing stays on them */
+  .lt-js .lt-rv .lt-shot { clip-path: inset(0 0 calc(100% * var(--lt-loud)) 0); transition: clip-path 1200ms var(--lt-ease-emphasized) 80ms; }
+  .lt-js .lt-rv.lt-in .lt-shot { clip-path: inset(0); }
+  .lt-js .lt-rv .lt-shot img { scale: calc(1 + .07 * var(--lt-loud)); transition: scale 1700ms var(--lt-ease-emphasized) 80ms; }
+  .lt-js .lt-rv.lt-in .lt-shot img { scale: 1; }
+  /* the last picture does not open, it comes up out of the dark */
+  .lt-js .lt-night .lt-fig.lt-rv .lt-shot { clip-path: none; opacity: calc(1 - var(--lt-loud)); transition: opacity 2400ms var(--lt-ease-standard) 120ms; }
+  .lt-js .lt-night .lt-fig.lt-in .lt-shot { opacity: 1; }
+  .lt-js .lt-night .lt-fig.lt-rv .lt-shot img { scale: calc(1 + .04 * var(--lt-loud)); transition: scale 3200ms var(--lt-ease-emphasized) 120ms; }
+  .lt-js .lt-night .lt-fig.lt-in .lt-shot img { scale: 1; }
+  /* the recommendations arrive one after another, and the credits roll */
+  .lt-js .lt-steps > .lt-rv:nth-child(2n) { transition-delay: 110ms; }
+  .lt-js .lt-roll.lt-rv li { opacity: calc(1 - var(--lt-loud)); translate: 0 calc(12px * var(--lt-loud)); transition: opacity 800ms var(--lt-ease-standard) calc(var(--i) * 75ms), translate 1000ms var(--lt-ease-emphasized) calc(var(--i) * 75ms); }
+  .lt-js .lt-roll.lt-in li { opacity: 1; translate: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lt-js .lt-rv { opacity: 0; transition: opacity 240ms ease; }
+  .lt-js .lt-rv.lt-in { opacity: 1; }
+}
+
+/* the lines that open on the thread word: one thread links them */
+.lt-maybe { --lt-gap: clamp(60px, 10vh, 112px); position: relative; display: flex; flex-direction: column; align-items: center; row-gap: var(--lt-gap); }
+.lt-sec > .lt-maybe, .lt-night > .lt-maybe { width: min(var(--lt-wide), 100cqi - 2 * var(--lt-pad)); margin: clamp(40px, 6vh, 80px) auto 0; }
+.lt-maybe > :is(.lt-fig, .lt-perhaps) { position: relative; flex: none; margin: 0; max-width: 100%; }
+.lt-maybe > .lt-fig-wide { width: min(100%, var(--lt-tall) * var(--ar)); }
+.lt-maybe > .lt-fig-bleed { width: 100cqi; max-width: none; }
+/* the lines: larger than the body, centred, the first word in the accent */
+.lt-maybe > .lt-perhaps { width: min(100%, var(--lt-col)); padding-top: 30px; font-size: 1.5em; line-height: 1.28; letter-spacing: -.016em; text-align: center; text-wrap: balance; }
+.lt-maybe .lt-pw { color: var(--lt-accent-text); }
+@container (max-width: 560px) { .lt-maybe > .lt-perhaps { font-size: 1.35em; } }
+/* the thread: a piece of it in each gap, from the first line down to the last, so it never crosses a photo or a word */
+.lt-maybe > .lt-perhaps ~ *::before { content: ""; position: absolute; left: calc(50% - 1px); bottom: 100%; width: 2px; height: var(--lt-gap); background: var(--lt-accent); transform-origin: 50% 0; box-shadow: 0 0 calc(10px * var(--lt-loud)) color-mix(in srgb, var(--lt-accent) 55%, transparent); pointer-events: none; }
+/* a node on the thread at the head of each line */
+.lt-maybe > .lt-perhaps::after { content: ""; position: absolute; z-index: 1; top: -8px; left: calc(50% - 8px); box-sizing: border-box; width: 16px; height: 16px; border: 2px solid var(--lt-accent); border-radius: 50%; background: var(--lt-accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--lt-accent) 24%, transparent); pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  /* a ring until its line inks in, then it fills and a halo spreads from it */
+  .lt-js .lt-maybe > .lt-perhaps::after { transition: background-color 500ms var(--lt-ease-standard), box-shadow 700ms var(--lt-ease-standard), scale 800ms var(--lt-ease-spring); }
+  .lt-js .lt-maybe > .lt-perhaps:not(.lt-in)::after { background: color-mix(in srgb, var(--lt-accent) calc((1 - var(--lt-loud)) * 100%), var(--lt-paper)); box-shadow: 0 0 0 calc(5px * (1 - var(--lt-loud))) color-mix(in srgb, var(--lt-accent) 24%, transparent); scale: calc(1 - .3 * var(--lt-loud)); }
+  .lt-js .lt-maybe > .lt-perhaps.lt-in::after { animation: lt-ping 1500ms var(--lt-ease-standard) 200ms backwards; }
+  /* the thread is drawn by the scroll: each piece grows as it reaches the lower fifth of the window */
+  @supports (animation-timeline: view()) {
+    .lt-maybe > .lt-perhaps ~ *::before { animation: lt-thread linear both; animation-timeline: view(); animation-range: cover 22vh cover calc(22vh + var(--lt-gap)); }
+  }
+  @supports not (animation-timeline: view()) {
+    .lt-js .lt-maybe > .lt-perhaps ~ *::before { scale: 1 calc(1 - var(--lt-loud)); transition: scale 900ms var(--lt-ease-emphasized) 300ms; }
+    .lt-js .lt-maybe > .lt-perhaps ~ .lt-in::before { scale: 1 1; }
+  }
+}
+@keyframes lt-thread { from { scale: 1 calc(1 - var(--lt-loud)); } to { scale: 1 1; } }
+@keyframes lt-ping {
+  from { outline: calc(2px * var(--lt-loud)) solid color-mix(in srgb, var(--lt-accent) 70%, transparent); outline-offset: 0; }
+  to { outline: calc(2px * var(--lt-loud)) solid transparent; outline-offset: calc(22px * var(--lt-loud)); }
+}
+/* the strip's pictures wipe in one after another, oldest first */
+@media (prefers-reduced-motion: no-preference) {
+  .lt-js .lt-strip.lt-rv .lt-shot, .lt-js .lt-strip.lt-rv .lt-shot img { transition-delay: calc(80ms + var(--i) * 160ms); }
+}

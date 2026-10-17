@@ -1,0 +1,33 @@
+<!doctype html><meta charset="utf-8"><title>title card: a few tiny figures on a ridge at night, facing a vast globe as it rises</title>
+<script src="kit.js"></script>
+<body><script>
+// Text zone: the upper half, centred. Focal mass: the globe, centred, cresting the ridge.
+// ?layer=sky|orb|land paints one layer on a clear ground, so the page can move them apart.
+const L = new URLSearchParams(location.search).get('layer') || 'all';
+const on = (l) => L === 'all' || L === l;
+const s = K.scene({ seed: 11, base: L === 'all' ? '#0A0B12' : 'transparent' });
+if (L !== 'all') document.documentElement.style.background = 'transparent';
+const CX = 960, CY = 1130, R = 520;
+if (on('sky')) {
+  s.sky(['#07080E', '#0A0C14', '#0F111C', '#161627', '#1F1B30', '#2C2238', '#3D2A3D', '#4E303E'], { y1: 930 });
+  // no bright star under the masthead or in the title, where it would read as a stray mark
+  s.stars({ n: 260, yMax: 860, bias: 1.25, big: 0.045, avoid: (x, y) => y < 130 || (x > 330 && x < 1590 && y < 520) });
+}
+if (on('orb')) {
+  s.haze(CX, CY - 250, 1180, 760, '#C98A5E', 0.36);
+  s.orbits(CX, CY - 200, { n: 5, rx: 1240, ratio: 0.2, tilt: -9, color: '#F6D2A8', opacity: 0.3 });
+  s.orb(CX, CY, R, { haloOpacity: 0.32, haloR: 1.7, meridians: 8, parallels: 8, gridOpacity: 0.38 });
+}
+if (on('land')) {
+  const far = { amp: 46, color: '#2C2434', wavelength: 640 };
+  const near = { amp: 40, color: '#17151D', wavelength: 470, seedOffset: 2 };
+  s.ridge(905, far);
+  // the few others, far off along the ridge
+  [[1236, 25], [1302, 23], [556, 21]].forEach(([x, h]) => s.figure(x, s.ridgeY(x, 905, far) + 3, h, { color: '#1B1722' }));
+  s.ridge(972, near);
+  s.mound(790, 888, 1500, '#0D0B12', { ry: 620 });
+  s.figure(862, 890, 66, { color: '#0A090E' });
+  s.ground(1010, [['#0A0A10', 0, 0], ['#0A0A10', 1, 1]]);
+}
+s.finish({ vignette: L === 'all' ? 0.3 : 0, grain: on('sky') ? 0.05 : 0 });
+</script></body>

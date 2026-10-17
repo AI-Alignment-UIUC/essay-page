@@ -1,0 +1,38 @@
+/* views and comments */
+/* the fade the count uses; a page whose base sheet already defines it can drop this */
+@keyframes lt-fade { from { opacity: 0; } }
+
+/* The count under the byline: the kicker's mono caps, quieter. Its line is held while the count loads. */
+.lt-views { min-height: 1.4em; margin: clamp(8px, 1.4svh, 14px) 0 0; font-family: var(--lt-mono); font-size: clamp(12px, .95vw, 14px); font-weight: 500; line-height: 1.4; letter-spacing: .2em; text-transform: uppercase; color: var(--lt-soft); }
+@media (prefers-reduced-motion: no-preference) { .lt-views span { animation: lt-fade 700ms var(--lt-ease-standard) both; } }
+
+/* The comments run on from the credits: the same black and cream, under a rule one column wide.
+   The list and the form read left to right in the reading face at body size. */
+.lt-comments {
+  --lt-night: var(--lt-black); --lt-ink: var(--lt-cream); --lt-soft: var(--lt-night-soft); --lt-line: color-mix(in srgb, var(--lt-cream) 22%, transparent);
+  --lt-accent: var(--lt-glow); --lt-accent-text: var(--lt-amber); --lt-paper: var(--lt-night); --lt-focus: var(--lt-glow);
+  position: relative; padding: 0 var(--lt-pad) clamp(96px, 16vh, 190px); color: var(--lt-ink); background-color: var(--lt-night);
+  scroll-margin-top: calc(var(--lt-headh) + 24px);
+}
+.lt-c-in { width: min(var(--lt-col), 100%); margin-inline: auto; padding-top: clamp(40px, 6vh, 72px); border-top: 1px solid var(--lt-line); }
+.lt-comments .lt-credits-h { text-align: center; }
+.lt-c-empty { color: var(--lt-soft); font-style: italic; }
+.lt-c-list { margin: 0; padding: 0; list-style: none; }
+.lt-c-item { padding-block: 1.1em; border-top: 1px solid var(--lt-line); }
+.lt-c-item:first-child { padding-top: 0; border-top: 0; }
+.lt-c-item:last-child { padding-bottom: 0; }
+.lt-c-meta { display: flex; flex-wrap: wrap; gap: 2px 14px; margin: 0 0 .45em; font-family: var(--lt-mono); font-size: 13px; font-weight: 500; line-height: 1.6; letter-spacing: .12em; text-transform: uppercase; color: var(--lt-soft); }
+.lt-c-name { color: var(--lt-ink); overflow-wrap: anywhere; }
+.lt-c-body { margin: 0; white-space: pre-line; overflow-wrap: anywhere; text-wrap: pretty; }
+.lt-c-form { display: grid; gap: 22px; margin-top: clamp(32px, 5vh, 52px); padding-top: clamp(28px, 4vh, 44px); border-top: 1px solid var(--lt-line); }
+.lt-c-field { display: grid; gap: 8px; }
+.lt-c-field label { font-family: var(--lt-mono); font-size: 13px; font-weight: 500; line-height: 1.5; letter-spacing: .12em; text-transform: uppercase; color: var(--lt-soft); }
+.lt-c-field :is(input, textarea) { display: block; width: 100%; padding: .55em .75em; font: inherit; line-height: 1.4; color: var(--lt-ink); background: transparent; border: 1px solid color-mix(in srgb, var(--lt-ink) 45%, transparent); border-radius: 3px; appearance: none; transition: border-color var(--lt-dur-state) var(--lt-ease-standard); }
+.lt-c-field textarea { min-height: 8em; line-height: 1.5; resize: vertical; }
+.lt-c-field :is(input, textarea):hover, .lt-c-field :is(input, textarea):focus { border-color: var(--lt-ink); }
+.lt-c-send { justify-self: start; min-height: 44px; padding: .7em 1.5em; font-family: var(--lt-mono); font-size: 13px; font-weight: 500; line-height: 1.2; letter-spacing: .14em; text-transform: uppercase; color: var(--lt-night); background: var(--lt-accent); border: 1px solid var(--lt-accent); border-radius: 3px; cursor: pointer; transition: background-color var(--lt-dur-state) var(--lt-ease-standard), border-color var(--lt-dur-state) var(--lt-ease-standard); }
+.lt-c-send:hover:not(:disabled) { background: var(--lt-accent-text); border-color: var(--lt-accent-text); }
+.lt-c-send:disabled { opacity: .5; cursor: progress; }
+.lt-c-status { min-height: 1.5em; margin: -8px 0 0; font-size: .9em; font-style: italic; line-height: 1.5; color: var(--lt-accent-text); overflow-wrap: anywhere; }
+/* the honeypot: out of sight and out of the tab order; a reader never meets it */
+.lt-c-hp { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }

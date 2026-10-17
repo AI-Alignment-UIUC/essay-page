@@ -1,0 +1,5 @@
+# Keep LF line endings so the shell scripts run after a clone on any machine.
+* text=auto eol=lf
+*.jpg binary
+*.png binary
+*.avif binary

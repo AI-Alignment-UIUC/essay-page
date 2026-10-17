@@ -1,0 +1,87 @@
+{
+  "slug": "the-page-is-the-essay",
+  "kicker": "Essay Page Kit · Demo",
+  "byline": "AI Alignment @ Illinois",
+  "titleLean": "Is",
+  "pictures": "/essays/the-page-is-the-essay",
+  "hero": { "sky": "rise-sky.avif", "orb": "rise-orb.avif", "land": "rise-land.avif", "w": 2560, "h": 1440 },
+  "figures": [
+    {
+      "at": "Abraham Lincoln gave his second", "after": true, "lay": "wide",
+      "src": "inauguration.jpg", "w": 1600, "h": 1263,
+      "name": "Lincoln's second inauguration, 1865", "credit": "Alexander Gardner, Library of Congress",
+      "alt": "Abraham Lincoln reads his second inaugural address from a platform on the east front of the Capitol, above a dense crowd, on 4 March 1865."
+    },
+    {
+      "at": "Perhaps the people who built the first furnaces", "lay": "wide",
+      "src": "coalbrookdale.jpg", "w": 1600, "h": 1022,
+      "name": "Coalbrookdale by Night, 1801", "credit": "Philip James de Loutherbourg, Science Museum, London",
+      "alt": "Iron furnaces at Coalbrookdale light the night sky with fire and smoke while horses haul a cart along the road below."
+    },
+    {
+      "at": "Perhaps the people who split the atom", "lay": "wide",
+      "src": "castle-bravo.jpg", "w": 1400, "h": 1052,
+      "name": "The Castle Bravo hydrogen bomb, 1954", "credit": "U.S. Department of Energy",
+      "alt": "The fireball of Castle Bravo, the largest American nuclear test, rising through a red sky above the clouds over Bikini Atoll in March 1954."
+    },
+    {
+      "at": "I hope this demo has shown", "lay": "wide",
+      "src": "pale-blue-dot.jpg", "w": 1600, "h": 1583,
+      "name": "Pale Blue Dot, 1990", "credit": "Voyager 1, NASA/JPL-Caltech",
+      "alt": "The Earth as a single pale dot inside a band of scattered sunlight, seen by Voyager 1 from about six billion kilometres away."
+    }
+  ],
+  "strips": [
+    {
+      "at": "People have gathered in public", "after": true,
+      "pics": [
+        {
+          "src": "lexington.jpg", "w": 1100, "h": 742, "name": "The Battle of Lexington, 1775",
+          "credit": "William Barnes Wollen (1910), National Army Museum",
+          "alt": "Militiamen on Lexington Green fire through musket smoke at a line of British regulars, while others tend the wounded and the dead."
+        },
+        {
+          "src": "peterloo.jpg", "w": 1000, "h": 796, "name": "The Peterloo Massacre, 1819",
+          "credit": "Anonymous print (1819), Library of Congress",
+          "alt": "A print of the Peterloo Massacre: cavalry with raised sabres ride down a crowd of men, women and children in Manchester, 16 August 1819."
+        },
+        {
+          "src": "kennington.jpg", "w": 1000, "h": 711, "name": "Chartists on Kennington Common, 1848",
+          "credit": "William Edward Kilburn (1848), Royal Collection",
+          "alt": "One of the first photographs of a crowd: Chartists massed on Kennington Common in London to demand the vote, 10 April 1848."
+        }
+      ]
+    }
+  ],
+  "faces": [
+    {
+      "match": "Oppenheimer", "src": "oppenheimer.jpg", "w": 728, "h": 997,
+      "alt": "J. Robert Oppenheimer.", "what": "J. Robert Oppenheimer", "credit": "Los Alamos National Laboratory",
+      "note": "A note line under the name says what the quote means for the reader."
+    },
+    {
+      "match": "Szilard", "src": "szilard.jpg", "w": 672, "h": 880,
+      "alt": "Leo Szilard.", "what": "Leo Szilard", "credit": "U.S. Department of Energy"
+    }
+  ],
+  "moods": {
+    "default": "civic",
+    "byTitle": [
+      ["why one column", "doubt"],
+      ["pictures", "ask"],
+      ["weight of knowing", "knowing"],
+      ["what you can do", "act"],
+      ["close", "together"]
+    ],
+    "cues": [
+      ["We turned the switch", "heavy"],
+      ["The dark band ends", "knowing"],
+      ["I hope this demo has shown", "night"]
+    ],
+    "tints": {},
+    "bands": { "heavy": "band", "night": "end" }
+  },
+  "keys": ["685 pixels"],
+  "odds": ["no panacea"],
+  "thread": "Perhaps"
+}

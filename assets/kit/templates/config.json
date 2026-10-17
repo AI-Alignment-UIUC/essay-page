@@ -1,0 +1,22 @@
+{
+  "slug": "{{slug}}",
+  "kicker": "{{title}}",
+  "byline": "",
+  "titleLean": "",
+  "pictures": "/essays/{{slug}}",
+  "hero": null,
+  "figures": [],
+  "strips": [],
+  "faces": [],
+  "moods": {
+    "default": "civic",
+    "byTitle": [],
+    "cues": [],
+    "tints": {},
+    "bands": {}
+  },
+  "keys": [],
+  "odds": [],
+  "thread": "",
+  "palette": "illinois"
+}

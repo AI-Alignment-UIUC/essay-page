@@ -1,0 +1,138 @@
+/* The essay page's design tokens: custom properties and nothing else. app/essay.css reads only
+   these, so a new look is a new palette block here and no change to the components.
+   Palette: data-palette on .lt-root ("illinois" is the default, "plain" is the neutral one).
+   Mode: data-theme="dark" on .lt-root, written by EssayTheme and the boot script in Essay.tsx.
+   The blocks sit in :where() so they have no specificity: a block below beats the ones above it
+   by source order, and any rule of yours beats all of them. A palette block names every colour
+   role, so a mode or palette never inherits a stray value from another.
+   Each palette also names six mood tints (--lt-m-doubt, -ask, -knowing, -honor, -act, -together)
+   in each mode, so an essay that switches palette keeps tints that suit it. A config's
+   moods.tints adds moods or overrides these, and its `tokens` override anything here; Essay.tsx
+   writes both into a <style> scoped to the essay's root. */
+
+/* ------------------------------------------------------------------ type, layout, rhythm, motion */
+:where(.lt-root) {
+  /* type: Newsreader for what is read, IBM Plex Mono for labels (lib/essay/font.ts sets the variables) */
+  --lt-serif: var(--font-newsreader), "Iowan Old Style", Palatino, Georgia, serif;
+  --lt-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --lt-body: clamp(19px, .7vw + 12.4px, 24px); /* the reading size */
+  --lt-caption: 13px;                          /* the floor for mono capitals: captions, credits, attributions */
+
+  /* layout */
+  --lt-pad: clamp(20px, 4vw, 56px);
+  --lt-col: clamp(600px, 52vw, 820px); /* the reading column */
+  --lt-wide: 1120px;                   /* how far a quote or a photo may break out */
+  --lt-tall: min(74vh, 760px);         /* a wide photo is never taller than this */
+  --lt-headh: 0px;                     /* height of the site's sticky header, if it has one */
+
+  /* vertical rhythm: four steps, each about twice the last, in em so they follow the text size */
+  --lt-s1: 1.05em; /* a: one paragraph to the next, inside one thought */
+  --lt-s2: 2.1em;  /* b: a beat. The same gap above and below a picture, a quote, the list, and from a heading to its first block */
+  --lt-s3: 4.2em;  /* c: a new section, and the outer edge of a dark band */
+  --lt-s4: 8.4em;  /* d: the end. Before the end mark and after it, the largest gap on the page */
+
+  /* motion. --lt-loud is the dial: 1 is all of it, 0 holds everything still (?loud= sets it) */
+  --lt-loud: 1;
+  --lt-ease-standard: cubic-bezier(0.2, 0, 0.38, 0.9);
+  --lt-ease-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --lt-ease-smooth: linear(0,0.0339,0.1127,0.2121,0.3169,0.4183,0.5115,0.5943,0.6662,0.7274,0.7788,0.8215,0.8566,0.8853,0.9086,0.9274,0.9425,0.9546,0.9642,0.9719,0.9779,0.9827,0.9865,0.9894,0.9918,0.9936,1);
+  --lt-ease-spring: linear(0,0.0322,0.1106,0.2137,0.3265,0.4386,0.5436,0.6377,0.7194,0.7882,0.8446,0.8899,0.9253,0.9523,0.9724,0.9868,0.9968,1.0033,1.0073,1.0094,1.0102,1.01,1.0094,1.0084,1.0072,1.0061,1);
+  --lt-dur-state: 240ms;   /* a hover, a colour change */
+  --lt-dur-control: 280ms; /* a control that moves */
+}
+
+/* ------------------------------------------------------------------ colour roles
+   paper         the sheet the essay is printed on
+   ink           body text, headings, captions
+   soft          secondary text: attributions, credits, labels
+   line          hairlines (ink at 16%)
+   accent        marks that are not text: quote marks, the thread, link underlines, markers, the progress line
+   accent-text   the accent where it is text; darker than accent so it holds AA on paper
+   focus         the keyboard focus ring
+   night         the ground of the dark acts: title card, opening quote, dark bands, credits
+   cream         ink on the night
+   night-soft    soft on the night
+   amber         the accent where it is text on the night
+   glow          the accent as a mark on the night
+   horizon       the lit edge of the night sky in the CSS title card
+   black         the ending's own ground, so the last picture has no edge
+   Inside the dark acts essay.css rebinds paper, ink, soft, line, accent, accent-text and focus to
+   the night's colours, so a component needs no dark rules of its own. */
+
+/* illinois, light. The night half of the set is the same in both modes. */
+:where(.lt-root, .lt-root[data-palette="illinois"]) {
+  --lt-paper: #FBF8F1;
+  --lt-ink: #13294B;
+  --lt-soft: #4B5A70;
+  --lt-line: color-mix(in srgb, var(--lt-ink) 16%, transparent);
+  --lt-accent: #FF5F05;
+  --lt-accent-text: #AD3E08;
+  --lt-focus: #C84113;
+  --lt-night: #0A0A10;
+  --lt-cream: #F1EBDD;
+  --lt-night-soft: #A9AEC2;
+  --lt-amber: #F2A65A;
+  --lt-glow: #FF5F05;
+  --lt-horizon: #1B2A55;
+  --lt-black: #000000;
+  /* the six named mood tints: the paper leans a few percent toward each */
+  --lt-m-doubt: #EDECE7;
+  --lt-m-ask: #F6F1E5;
+  --lt-m-knowing: #EDF2F7;
+  --lt-m-honor: #FBE8D7;
+  --lt-m-act: #FFF3E2;
+  --lt-m-together: #FFEFD9;
+}
+/* illinois, dark: a deep navy sheet with cream ink */
+:where(.lt-root[data-theme="dark"]) {
+  --lt-paper: #0E1A30;
+  --lt-ink: #EFE9DC;
+  --lt-soft: #A7B2C5;
+  --lt-accent-text: #FF8B4A;
+  --lt-focus: var(--lt-accent);
+  --lt-m-doubt: #121821;
+  --lt-m-ask: #101C34;
+  --lt-m-knowing: #0E2646;
+  --lt-m-honor: #2B1B1F;
+  --lt-m-act: #251C1D;
+  --lt-m-together: #2D1E17;
+}
+
+/* plain, light: after ai-2027.com. Warm white paper, near-black ink, grey for the quiet text, one deep red */
+:where(.lt-root[data-palette="plain"]) {
+  --lt-paper: #FFFFF8;
+  --lt-ink: #111111;
+  --lt-soft: #595959;
+  --lt-line: color-mix(in srgb, var(--lt-ink) 16%, transparent);
+  --lt-accent: #9E1A1A;
+  --lt-accent-text: #9E1A1A;
+  --lt-focus: #9E1A1A;
+  --lt-night: #0B0B0D;
+  --lt-cream: #F3F0E4;
+  --lt-night-soft: #A6A6A0;
+  --lt-amber: #F28C7C;
+  --lt-glow: #E5604F;
+  --lt-horizon: #2A1315;
+  --lt-black: #000000;
+  --lt-m-doubt: #F3F3EE;
+  --lt-m-ask: #FAF6EA;
+  --lt-m-knowing: #F1F5F8;
+  --lt-m-honor: #FCEDE6;
+  --lt-m-act: #FFF6E6;
+  --lt-m-together: #FFF1DF;
+}
+/* plain, dark: warm black with soft cream ink, the red lifted so it reads on the dark */
+:where(.lt-root[data-palette="plain"][data-theme="dark"]) {
+  --lt-paper: #151513;
+  --lt-ink: #ECEAE0;
+  --lt-soft: #A3A39A;
+  --lt-accent: #E0594A;
+  --lt-accent-text: #F27B6C;
+  --lt-focus: #F27B6C;
+  --lt-m-doubt: #1A1A19;
+  --lt-m-ask: #1C1A15;
+  --lt-m-knowing: #161A1F;
+  --lt-m-honor: #231716;
+  --lt-m-act: #211C16;
+  --lt-m-together: #241C14;
+}
